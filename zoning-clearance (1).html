@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoning Clearance — Business License Review</title>
+<link rel="stylesheet" href="https://js.arcgis.com/4.30/@arcgis/core/assets/esri/themes/light/main.css">
+<style>
+:root {
+  --brand: #1a3a5c;
+  --brand-mid: #2563a8;
+  --brand-light: #e8f0fb;
+  --accent: #c47f00;
+  --accent-light: #fff8e1;
+  --green: #1a6b3a;
+  --green-light: #eaf5ee;
+  --orange: #b05400;
+  --orange-light: #fff3e0;
+  --purple: #5c2d9e;
+  --purple-light: #f3ecfb;
+  --red: #9b1c1c;
+  --red-light: #fef2f2;
+  --gray-50: #f8f9fa;
+  --gray-100: #f1f3f5;
+  --gray-200: #e9ecef;
+  --gray-400: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-800: #343a40;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--gray-800);
+  background: #f0f2f5;
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+.page-header {
+  background: var(--brand);
+  color: white;
+  padding: 22px 32px 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  border-bottom: 3px solid var(--accent);
+}
+.page-header h1 {
+  font-size: 20px;
+  font-weight: normal;
+  letter-spacing: 0.01em;
+}
+.page-header .subtitle {
+  font-size: 13px;
+  opacity: 0.7;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.disclaimer {
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  padding: 10px 16px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12.5px;
+  color: #7a4f00;
+}
+
+.main {
+  max-width: 860px;
+  margin: 28px auto 0;
+  padding: 0 20px;
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card-header {
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-header .step-badge {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: white;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.card-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--brand);
+  letter-spacing: 0.02em;
+}
+
+.card-body { padding: 20px; }
+
+.field-group { margin-bottom: 16px; }
+.field-group:last-child { margin-bottom: 0; }
+label {
+  display: block;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-600);
+  margin-bottom: 6px;
+}
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--gray-800);
+  background: white;
+  transition: border-color 0.15s;
+}
+input[type=text]:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--brand-mid);
+  box-shadow: 0 0 0 3px rgba(37,99,168,0.12);
+}
+
+.match-strip {
+  margin-top: 8px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.match-pill {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--gray-200);
+  background: var(--gray-100);
+  color: var(--gray-800);
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+.match-pill:hover { background: var(--brand-light); border-color: var(--brand-mid); }
+.match-pill.selected { background: var(--brand-light); border-color: var(--brand-mid); color: var(--brand); font-weight: 600; }
+.match-label {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+.zone-detect {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  display: none;
+}
+.zone-detect.loading { background: var(--gray-100); color: var(--gray-600); display: block; }
+.zone-detect.found { background: var(--brand-light); color: var(--brand); display: block; border: 1px solid #b3cef0; }
+.zone-detect.not-found { background: var(--red-light); color: var(--red); display: block; }
+.zone-detect strong { font-weight: 700; }
+
+.zone-override-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.zone-override-row label {
+  font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: normal;
+  color: var(--gray-600); margin: 0; white-space: nowrap;
+}
+
+.run-btn {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: var(--brand);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.run-btn:hover { background: var(--brand-mid); }
+.run-btn:active { transform: scale(0.99); }
+.run-btn:disabled { background: var(--gray-400); cursor: not-allowed; }
+
+.output-hidden { display: none; }
+
+.determination-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.det-permitted { background: var(--green-light); color: var(--green); border: 1px solid #a3d9b5; }
+.det-conditional { background: var(--orange-light); color: var(--orange); border: 1px solid #f5c07a; }
+.det-accessory { background: var(--purple-light); color: var(--purple); border: 1px solid #c9a8f0; }
+.det-not-permitted { background: var(--red-light); color: var(--red); border: 1px solid #f5a3a3; }
+.det-special { background: #f0f4ff; color: #3730a3; border: 1px solid #a5b4fc; }
+
+.det-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.det-cell {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.det-cell .cell-label {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--gray-600);
+  margin-bottom: 4px;
+}
+.det-cell .cell-value {
+  font-size: 14px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.draft-label {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-600);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.copy-btn {
+  background: none;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: background 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.copy-btn:hover { background: var(--gray-100); color: var(--gray-800); }
+.copy-btn.copied { color: var(--green); border-color: #a3d9b5; background: var(--green-light); }
+
+.draft-box {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--gray-800);
+  white-space: pre-wrap;
+  position: relative;
+}
+
+.notes-hint {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--gray-600);
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.qualifier-box {
+  background: #fffbe6;
+  border: 1px solid #f0c040;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  color: #7a5800;
+  margin-bottom: 14px;
+}
+.qualifier-box strong { font-weight: 600; }
+
+.cannabis-box {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  color: #166534;
+  margin-bottom: 14px;
+}
+
+.error-msg {
+  background: var(--red-light);
+  border: 1px solid #f5a3a3;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--red);
+}
+
+@media (max-width: 600px) {
+  .det-grid { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; gap: 4px; }
+}
+</style>
+<script src="ZoningData_not_permitted.js"></script>
+<script src="UseDefinitions.js"></script>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Zoning Clearance — Business License Review</h1>
+  <span class="subtitle">Planning Department Internal Tool · City of Petaluma</span>
+</div>
+<div class="disclaimer">
+  <strong>Internal use only.</strong> Verify final determinations against the current SmartCode, IZO, and applicable overlay regulations before responding to Finance. This tool does not substitute for staff judgment.
+</div>
+
+<div class="main">
+
+  <!-- Step 1: Business info -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-badge">1</div>
+      <h2>Business Information</h2>
+    </div>
+    <div class="card-body">
+      <div class="field-group">
+        <label>Applicant / Business Name</label>
+        <input type="text" id="bizName" placeholder="e.g. Petaluma Poke Bowl">
+      </div>
+      <div class="field-group">
+        <label>Business Description <span style="font-weight:normal;text-transform:none;letter-spacing:0;color:var(--gray-400)">— type to find matching land use</span></label>
+        <input type="text" id="bizDesc" placeholder="e.g. walk-in nail salon, auto repair shop, home daycare…" autocomplete="off">
+        <div class="match-strip" id="matchStrip">
+          <span class="match-label" id="matchHint">Start typing to see land use suggestions</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Confirmed Land Use <span style="font-weight:normal;text-transform:none;letter-spacing:0;color:var(--gray-400)">— select or override</span></label>
+        <select id="landUseSelect">
+          <option value="">— select from list —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Address -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-badge">2</div>
+      <h2>Business Address &amp; Zone Detection</h2>
+    </div>
+    <div class="card-body">
+      <div class="field-group">
+        <label>Street Address</label>
+        <input type="text" id="addressInput" placeholder="e.g. 123 Main St, Petaluma, CA">
+        <div id="zoneDetect" class="zone-detect"></div>
+      </div>
+      <div class="zone-override-row">
+        <label>Zone (override if needed):</label>
+        <select id="zoneSelect" style="width:auto;min-width:200px;">
+          <option value="">— auto-detected or select —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Run -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-badge">3</div>
+      <h2>Additional Context <span style="font-weight:normal;color:var(--gray-600)"> (optional)</span></h2>
+    </div>
+    <div class="card-body">
+      <div class="field-group">
+        <label>Notes / Special Circumstances</label>
+        <textarea id="extraNotes" rows="2" placeholder="e.g. home occupation, outdoor storage, second-story only, applicant stated no retail sales…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <button class="run-btn" id="runBtn" onclick="runDetermination()">Generate Zoning Clearance Determination</button>
+
+  <!-- Output -->
+  <div class="card output-hidden" id="outputCard">
+    <div class="card-header">
+      <div class="step-badge" style="background:var(--green)">✓</div>
+      <h2>Determination &amp; Draft Response</h2>
+    </div>
+    <div class="card-body">
+      <div id="errorMsg" class="error-msg output-hidden"></div>
+      <div id="determinationBadge" class="determination-badge"></div>
+      <div id="qualifierBox" class="qualifier-box output-hidden"></div>
+      <div id="cannabisBox" class="cannabis-box output-hidden"></div>
+      <div class="det-grid" id="detGrid"></div>
+      <div class="draft-label">
+        Draft Response
+        <button class="copy-btn" id="copyBtn" onclick="copyDraft()">Copy</button>
+      </div>
+      <div class="draft-box" id="draftBox"></div>
+      <p class="notes-hint" id="notesHint"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Parse raw permission into { kind, label, qualifier, isHomeOccupation, isCannabis } ──
+function parsePermission(raw) {
+  const full = String(raw || "").trim();
+  const lc = full.toLowerCase();
+
+  // Extract parenthetical qualifier text (everything inside first parens)
+  const parenMatch = full.match(/\(([^)]+)\)/);
+  const qualifier = parenMatch ? parenMatch[1].trim() : "";
+
+  // Base string without parens for kind detection
+  const base = full.replace(/\([^)]*\)/g, "").trim().toLowerCase();
+
+  const isCannabis = /cannabis|\(16,17\)/.test(lc);
+  const isHomeOccupation = /home\s*occupation\s*permit/.test(qualifier.toLowerCase())
+    || /home\s*occupation\s*permit/.test(base);
+
+  let kind;
+  if (!full || /^(np|not\s*permitted|prohibited)\b/i.test(base)) {
+    kind = "not-permitted";
+  } else if (/^s\b/.test(base) && !/accessory/i.test(base)) {
+    // "S" alone or "S (" means special conditions — site plan/architectural review etc.
+    kind = "special";
+  } else if (/\b(mup|minor\W*use\W*permit)\b/.test(lc)) {
+    kind = "conditional";
+  } else if (/\b(use\W*permit|cup|conditional)\b/.test(lc)) {
+    kind = "conditional";
+  } else if (/accessory/i.test(base)) {
+    // Check if also has S flag (Accessory,S) = requires additional permit
+    kind = /,\s*s\b/i.test(base) ? "accessory-s" : "accessory";
+  } else if (/\b(permitted|^p$)\b/.test(base)) {
+    kind = "permitted";
+  } else {
+    kind = "permitted";
+  }
+
+  // Human label for the base permission type
+  let label;
+  if (kind === "not-permitted") label = "Not Permitted";
+  else if (kind === "special") label = "Special Conditions Apply — See Planning Staff";
+  else if (kind === "accessory-s") label = isHomeOccupation ? "Home Occupation Permit Required" : "Accessory Use — Additional Permit Required";
+  else if (kind === "accessory") label = "Accessory Use";
+  else if (/minor\W*use\W*permit|mup/i.test(lc)) label = "Minor Use Permit Required";
+  else if (/use\W*permit|cup/i.test(lc)) label = "Conditional Use Permit Required";
+  else label = "Permitted By Right";
+
+  return { kind, label, qualifier, isHomeOccupation, isCannabis, full };
+}
+
+// Legacy shims used in a few places below
+function normalizePermission(raw) { return parsePermission(raw).kind; }
+function permissionLabel(raw) { return parsePermission(raw).label; }
+
+// ─── Fuzzy match land uses ────────────────────────────────────────────────────
+function fuzzyScore(query, target) {
+  const q = query.toLowerCase().replace(/[^a-z0-9 ]/g, "");
+  const t = target.toLowerCase().replace(/[^a-z0-9 ]/g, "");
+  if (t.includes(q)) return 100 - (t.length - q.length);
+  const qWords = q.split(/\s+/).filter(Boolean);
+  const tWords = t.split(/\s+/).filter(Boolean);
+  let hits = 0;
+  for (const qw of qWords) {
+    for (const tw of tWords) {
+      if (tw.startsWith(qw) || qw.startsWith(tw)) { hits++; break; }
+    }
+  }
+  return Math.round((hits / Math.max(qWords.length, 1)) * 80);
+}
+
+let selectedLandUse = "";
+
+function updateMatches() {
+  const q = document.getElementById("bizDesc").value.trim();
+  const strip = document.getElementById("matchStrip");
+  const hint = document.getElementById("matchHint");
+  if (!q || q.length < 2) {
+    strip.innerHTML = '<span class="match-label" id="matchHint">Start typing to see land use suggestions</span>';
+    return;
+  }
+  const data = window.zoningData || {};
+  const scored = Object.keys(data)
+    .map(k => ({ k, score: fuzzyScore(q, k) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+  if (!scored.length) {
+    strip.innerHTML = '<span class="match-label">No matches — select from dropdown below</span>';
+    return;
+  }
+  strip.innerHTML = '<span class="match-label">Suggestions:</span>' +
+    scored.map(x => {
+      const sel = x.k === selectedLandUse ? " selected" : "";
+      return `<span class="match-pill${sel}" onclick="selectLandUse('${x.k.replace(/'/g,"&#39;")}')">${x.k}</span>`;
+    }).join("");
+}
+
+function selectLandUse(use) {
+  selectedLandUse = use;
+  document.getElementById("landUseSelect").value = use;
+  document.querySelectorAll(".match-pill").forEach(p => {
+    p.classList.toggle("selected", p.textContent === use);
+  });
+}
+
+// ─── Populate dropdowns ───────────────────────────────────────────────────────
+function populateDropdowns() {
+  const data = window.zoningData || {};
+  const luSel = document.getElementById("landUseSelect");
+  const zSel = document.getElementById("zoneSelect");
+  const zones = Array.from(new Set(Object.values(data).flatMap(r => Object.keys(r || {})))).sort();
+  Object.keys(data).sort().forEach(u => {
+    const o = document.createElement("option"); o.value = u; o.textContent = u;
+    luSel.appendChild(o);
+  });
+  zones.forEach(z => {
+    const o = document.createElement("option"); o.value = z; o.textContent = z;
+    zSel.appendChild(o);
+  });
+}
+
+// ─── ArcGIS zone lookup ───────────────────────────────────────────────────────
+const WEBMAP_ID = "fed3b55fe5bf4220b0e74608433eec19";
+const ZONE_FIELD = "Zoning8";
+let arcgisReady = false;
+let featureLayer = null;
+
+async function initArcGIS() {
+  // We import only what we need: FeatureLayer + geocoder
+  const [WebMap, FeatureLayer] = await Promise.all([
+    import("https://js.arcgis.com/4.30/@arcgis/core/WebMap.js").then(m => m.default),
+    import("https://js.arcgis.com/4.30/@arcgis/core/layers/FeatureLayer.js").then(m => m.default)
+  ]);
+  const webmap = new WebMap({ portalItem: { id: WEBMAP_ID } });
+  await webmap.when();
+  if (typeof webmap.loadAll === "function") await webmap.loadAll();
+  const allLayers = webmap.allLayers.toArray();
+  for (const lyr of allLayers) {
+    try {
+      if (lyr.type !== "feature") continue;
+      if (typeof lyr.load === "function") await lyr.load();
+      const fields = (lyr.fields || []).map(f => (f.name || "").toLowerCase());
+      if (fields.includes(ZONE_FIELD.toLowerCase())) { featureLayer = lyr; break; }
+    } catch(e) {}
+  }
+  arcgisReady = true;
+}
+
+async function geocodeAndLookupZone(address) {
+  const detect = document.getElementById("zoneDetect");
+  detect.className = "zone-detect loading";
+  detect.textContent = "Geocoding address…";
+
+  // Use ESRI World Geocoder
+  const encoded = encodeURIComponent(address + ", Petaluma, CA");
+  const geoUrl = `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?singleLine=${encoded}&outFields=*&f=json&maxLocations=1`;
+  let point;
+  try {
+    const r = await fetch(geoUrl);
+    const j = await r.json();
+    const c = j?.candidates?.[0];
+    if (!c || c.score < 70) {
+      detect.className = "zone-detect not-found";
+      detect.textContent = "Address not found or low confidence. Select zone manually.";
+      return null;
+    }
+    point = c.location; // {x, y}
+    detect.textContent = `Address matched: ${c.address} — querying parcel data…`;
+  } catch(e) {
+    detect.className = "zone-detect not-found";
+    detect.textContent = "Geocode error. Select zone manually.";
+    return null;
+  }
+
+  // Wait up to 12 seconds for the layer to finish loading
+  if (!featureLayer) {
+    detect.className = "zone-detect loading";
+    detect.textContent = "Waiting for map layer to load…";
+    let waited = 0;
+    while (!featureLayer && waited < 12000) {
+      await new Promise(r => setTimeout(r, 400));
+      waited += 400;
+    }
+  }
+  if (!featureLayer) {
+    detect.className = "zone-detect not-found";
+    detect.textContent = "Map layer not ready. Select zone manually.";
+    return null;
+  }
+
+  try {
+    const { default: Point } = await import("https://js.arcgis.com/4.30/@arcgis/core/geometry/Point.js");
+    const q = featureLayer.createQuery();
+    q.geometry = new Point({ x: point.x, y: point.y, spatialReference: { wkid: 4326 } });
+    q.spatialRelationship = "intersects";
+    q.outFields = [ZONE_FIELD];
+    q.returnGeometry = false;
+    q.distance = 5;
+    q.units = "meters";
+    const result = await featureLayer.queryFeatures(q);
+    const feat = result.features?.[0];
+    const zone = feat?.attributes?.[ZONE_FIELD];
+    if (zone) {
+      detect.className = "zone-detect found";
+      detect.innerHTML = `Zone detected: <strong>${zone}</strong>`;
+      document.getElementById("zoneSelect").value = zone;
+      return zone;
+    } else {
+      detect.className = "zone-detect not-found";
+      detect.textContent = "Parcel found but no zoning field. Select zone manually.";
+      return null;
+    }
+  } catch(e) {
+    detect.className = "zone-detect not-found";
+    detect.textContent = "Parcel query failed. Select zone manually.";
+    return null;
+  }
+}
+
+// ─── Definitions helper ───────────────────────────────────────────────────────
+function getDefinition(use) {
+  const dict = window.useDefinitions || {};
+  if (dict[use]) return dict[use];
+  const norm = s => String(s).toLowerCase().replace(/[\/,–—\-]/g," ").replace(/\s+/g," ").trim();
+  const nk = norm(use);
+  for (const [k, v] of Object.entries(dict)) {
+    if (norm(k) === nk) return v;
+  }
+  return "";
+}
+
+// ─── Draft generation ─────────────────────────────────────────────────────────
+function buildDraft({ bizName, bizDesc, address, landUse, zone, rawPermission, parsed, notes, today }) {
+  const { kind, label, qualifier, isHomeOccupation, isCannabis } = parsed;
+  const def = getDefinition(landUse);
+  const defSentence = def ? ` Under the City's Zoning Ordinance, "${landUse}" is defined as: ${def}.` : "";
+
+  // Qualifier note for the draft
+  const qualNote = qualifier
+    ? `\n\nNote: The applicable zoning table includes the following condition for this use in the ${zone} zone: "${qualifier}." Staff should confirm compliance with this condition prior to clearing the business license.`
+    : "";
+
+  const cannabisNote = isCannabis
+    ? `\n\nNote: This use involves cannabis operations (footnotes 16 and 17 of the Use Table). Additional requirements under Petaluma Municipal Code Section 10.15 and the current Commercial Cannabis Permit Regulations apply. Confirm that a valid Commercial Cannabis Permit is in place.`
+    : "";
+
+  let actionLine = "";
+  if (kind === "not-permitted") {
+    actionLine = `This use is not a permitted, conditionally permitted, or accessory use in the ${zone} Zoning District. The business license application should be denied on zoning grounds, and the applicant should be referred to the Planning Division to discuss alternative locations or use interpretations.`;
+  } else if (kind === "special") {
+    actionLine = `This use is subject to special conditions in the ${zone} Zoning District and requires review by Planning staff. The business license application should be placed on hold pending confirmation from Planning. The applicant should contact the Planning Division directly.`;
+  } else if (isHomeOccupation || kind === "accessory-s" && /home/i.test(qualifier)) {
+    actionLine = `This use may be permitted in the ${zone} Zoning District as an accessory home occupation, subject to issuance of a Home Occupation Permit from the Planning Division. The applicant should be directed to complete a Home Occupation Permit application prior to business license issuance. A business license is also required.`;
+  } else if (kind === "accessory-s") {
+    actionLine = `This use is allowed as an accessory use in the ${zone} Zoning District, subject to additional permit requirements noted above. Please confirm with Planning that the applicable permit has been or will be obtained.`;
+  } else if (kind === "accessory") {
+    actionLine = `This use is allowed as an accessory use in the ${zone} Zoning District. Please confirm with Planning that a primary permitted use is established on the site.`;
+  } else if (kind === "conditional") {
+    actionLine = `This use requires a ${label.replace(" Required", "")} in the ${zone} Zoning District prior to establishing the use. The business license application should be placed on hold until Planning confirms a valid discretionary approval is in effect or has been applied for.`;
+  } else {
+    // permitted
+    actionLine = `This use is permitted by right in the ${zone} Zoning District. No additional discretionary planning approval is required for zoning purposes.`;
+  }
+
+  const noteBlock = notes ? `\n\nAdditional notes: ${notes}` : "";
+
+  return `Planning Department — Zoning Clearance Response
+Date: ${today}
+Re: Business License Application — ${bizName || bizDesc || landUse}
+Address: ${address || "—"}
+
+Finance Department,
+
+This memo confirms the zoning clearance review for the above-referenced business license application.
+
+The proposed business${bizName ? ` ("${bizName}")` : ""} — described as ${bizDesc || landUse} — has been reviewed against the applicable zoning regulations for ${address || "the subject address"}.
+
+Land Use Classification: The proposed activity falls under the land use classification of "${landUse}."${defSentence}
+
+Zoning District: The subject property is located within the ${zone} Zoning District.
+
+Determination: ${label.toUpperCase()}
+
+${actionLine}${qualNote}${cannabisNote}${noteBlock}
+
+Please do not hesitate to contact the Planning Division with any questions.
+
+Respectfully,
+[Planner Name]
+Planning Division, City of Petaluma`;
+}
+
+// ─── Main determination logic ─────────────────────────────────────────────────
+function runDetermination() {
+  const bizName = document.getElementById("bizName").value.trim();
+  const bizDesc = document.getElementById("bizDesc").value.trim();
+  const address = document.getElementById("addressInput").value.trim();
+  const landUse = document.getElementById("landUseSelect").value || selectedLandUse;
+  const zone = document.getElementById("zoneSelect").value;
+  const notes = document.getElementById("extraNotes").value.trim();
+
+  const outputCard = document.getElementById("outputCard");
+  const errorMsg = document.getElementById("errorMsg");
+
+  outputCard.classList.remove("output-hidden");
+  errorMsg.classList.add("output-hidden");
+
+  if (!landUse) {
+    errorMsg.textContent = "Please select or confirm a land use before generating a determination.";
+    errorMsg.classList.remove("output-hidden");
+    document.getElementById("determinationBadge").textContent = "";
+    document.getElementById("detGrid").innerHTML = "";
+    document.getElementById("draftBox").textContent = "";
+    outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (!zone) {
+    errorMsg.textContent = "Zone could not be auto-detected. Please select a zone from the dropdown.";
+    errorMsg.classList.remove("output-hidden");
+    document.getElementById("determinationBadge").textContent = "";
+    document.getElementById("detGrid").innerHTML = "";
+    document.getElementById("draftBox").textContent = "";
+    outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+
+  const data = window.zoningData || {};
+  const zoneRow = data[landUse] || {};
+  const rawPermission = zoneRow[zone] || "";
+  const parsed = parsePermission(rawPermission);
+  const { kind, label, qualifier, isHomeOccupation, isCannabis } = parsed;
+
+  // Badge
+  const badge = document.getElementById("determinationBadge");
+  const kindToCls = {
+    "permitted":    "det-permitted",
+    "accessory":    "det-accessory",
+    "accessory-s":  "det-accessory",
+    "conditional":  "det-conditional",
+    "special":      "det-special",
+    "not-permitted":"det-not-permitted",
+  };
+  badge.className = "determination-badge " + (kindToCls[kind] || "det-not-permitted");
+  badge.textContent = label;
+
+  // Qualifier and cannabis callouts (above draft)
+  const qualDiv = document.getElementById("qualifierBox");
+  if (qualifier) {
+    qualDiv.className = "qualifier-box";
+    qualDiv.innerHTML = `<strong>Zoning condition applies:</strong> ${qualifier}`;
+  } else {
+    qualDiv.className = "qualifier-box output-hidden";
+    qualDiv.textContent = "";
+  }
+  const canDiv = document.getElementById("cannabisBox");
+  if (isCannabis) {
+    canDiv.className = "cannabis-box";
+    canDiv.innerHTML = `<strong>Cannabis use:</strong> Additional requirements apply under PMC Section 10.15 and the Commercial Cannabis Permit Regulations (footnotes 16 and 17).`;
+  } else {
+    canDiv.className = "cannabis-box output-hidden";
+    canDiv.textContent = "";
+  }
+
+  // Detail grid
+  const today = new Date().toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+  document.getElementById("detGrid").innerHTML = `
+    <div class="det-cell"><div class="cell-label">Business / Applicant</div><div class="cell-value">${bizName || bizDesc || "—"}</div></div>
+    <div class="det-cell"><div class="cell-label">Address</div><div class="cell-value">${address || "—"}</div></div>
+    <div class="det-cell"><div class="cell-label">Land Use Classification</div><div class="cell-value">${landUse}</div></div>
+    <div class="det-cell"><div class="cell-label">Zoning District</div><div class="cell-value">${zone}</div></div>
+    <div class="det-cell"><div class="cell-label">Permission Type</div><div class="cell-value">${label}</div></div>
+    <div class="det-cell"><div class="cell-label">Date</div><div class="cell-value">${today}</div></div>
+  `;
+
+  // Draft
+  const draft = buildDraft({ bizName, bizDesc, address, landUse, zone, rawPermission, parsed, notes, today });
+  document.getElementById("draftBox").textContent = draft;
+  document.getElementById("copyBtn").textContent = "Copy";
+  document.getElementById("copyBtn").className = "copy-btn";
+
+  // Remove old notes hint — qualifier is now shown inline above
+  document.getElementById("notesHint").textContent = "";
+
+  outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function copyDraft() {
+  const text = document.getElementById("draftBox").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById("copyBtn");
+    btn.textContent = "Copied!";
+    btn.className = "copy-btn copied";
+    setTimeout(() => { btn.textContent = "Copy"; btn.className = "copy-btn"; }, 2200);
+  });
+}
+
+// ─── Address field: debounced geocode on change ───────────────────────────────
+let geoTimeout;
+document.addEventListener("DOMContentLoaded", () => {
+  populateDropdowns();
+  initArcGIS().catch(() => {});
+
+  document.getElementById("bizDesc").addEventListener("input", updateMatches);
+
+  document.getElementById("landUseSelect").addEventListener("change", function() {
+    selectedLandUse = this.value;
+    document.querySelectorAll(".match-pill").forEach(p => {
+      p.classList.toggle("selected", p.textContent === selectedLandUse);
+    });
+  });
+
+  document.getElementById("addressInput").addEventListener("input", () => {
+    clearTimeout(geoTimeout);
+    const val = document.getElementById("addressInput").value.trim();
+    if (val.length < 5) return;
+    geoTimeout = setTimeout(() => geocodeAndLookupZone(val), 900);
+  });
+});
+</script>
+</body>
+</html>
